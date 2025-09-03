@@ -68,7 +68,7 @@ mainSearch/
 
 5. **Run database migrations**
    ```bash
-   cd mainSearch
+   python3 manage.py makemigrations
    python3 manage.py migrate
    ```
 
