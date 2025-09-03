@@ -46,7 +46,7 @@ mainSearch/
 
 1. **Navigate to the project directory**
    ```bash
-   cd /home/empiric/Desktop/Search
+   cd /path/to/search_front_end
    ```
 
 2. **Create a virtual environment**
