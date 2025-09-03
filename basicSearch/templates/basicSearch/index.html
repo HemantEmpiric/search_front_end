@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .search-section {
+            padding: 50px 30px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-form {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 20px 25px;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
+            font-size: 18px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #74b9ff;
+            box-shadow: 0 8px 25px rgba(116, 185, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .search-input::placeholder {
+            color: #adb5bd;
+            font-weight: 300;
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.3);
+        }
+        
+        .search-hint {
+            color: #6c757d;
+            font-size: 14px;
+            font-style: italic;
+        }
+        
+        .cache-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .cache-btn {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .cache-btn:hover {
+            background: linear-gradient(135deg, #495057, #343a40);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .results-section {
+            padding: 30px;
+            background: #fafbfc;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .results-header h2 {
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .results-count {
+            font-size: 1.1rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+        
+        .loading::before {
+            content: "🔍";
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 20px;
+        }
+        
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 25px;
+        }
+        
+        .restaurant-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        
+        .restaurant-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+        }
+        
+        .restaurant-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .restaurant-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 3rem;
+        }
+        
+        .restaurant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .restaurant-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .restaurant-cuisine {
+            color: #74b9ff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .restaurant-rating {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            color: #2d3436;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 10px rgba(253, 203, 110, 0.3);
+        }
+        
+        .restaurant-details {
+            margin-bottom: 20px;
+        }
+        
+        .restaurant-address {
+            color: #6c757d;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+        
+        .restaurant-neighbourhood {
+            color: #00b894;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        .restaurant-price {
+            color: #00b894;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+        
+        .restaurant-vibes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .vibe-tag {
+            background: #f8f9fa;
+            color: #495057;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid #e9ecef;
+        }
+        
+        .restaurant-contact {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .contact-link {
+            color: #74b9ff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .contact-link:hover {
+            color: #0984e3;
+        }
+        
+        .reservation-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0, 184, 148, 0.3);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 80px 20px;
+            color: #6c757d;
+        }
+        
+        .no-results::before {
+            content: "🍽️";
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 20px;
+        }
+        
+        .no-results h3 {
+            margin-bottom: 15px;
+            color: #495057;
+            font-size: 1.5rem;
+        }
+        
+        .no-results p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .click-hint {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            font-style: italic;
+        }
+        
+        .cache-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #1976d2;
+        }
+        
+        .cache-indicator {
+            font-weight: 600;
+        }
+        
+        .cache-info {
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .search-section {
+                padding: 40px 20px;
+            }
+            
+            .search-input {
+                padding: 18px 20px;
+                font-size: 16px;
+            }
+            
+            .search-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .restaurant-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ Restaurant Search</h1>
+            <p>Discover amazing dining experiences in your area</p>
+        </div>
+        
+        <div class="search-section">
+            <div class="search-container">
+                <form class="search-form" id="searchForm">
+                    <input 
+                        type="text" 
+                        id="searchQuery" 
+                        name="q" 
+                        class="search-input"
+                        placeholder="Search for restaurants, cuisines, or locations..."
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
+                <div class="search-hint">Type to search or press Enter</div>
+            </div>
+            
+            <div class="cache-controls">
+                <button type="button" class="cache-btn" onclick="clearCache()">🗑️ Clear Server Cache</button>
+                <button type="button" class="cache-btn" onclick="clearBrowserCache()">🧹 Clear Browser Cache</button>
+                <button type="button" class="cache-btn" onclick="getCacheStats()">📊 Cache Stats</button>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div class="results-header">
+                <h2>Search Results</h2>
+                <div class="results-count" id="resultsCount"></div>
+            </div>
+            
+            <div class="cache-status" id="cacheStatus" style="display: none;">
+                <span class="cache-indicator">💾 Cache Status</span>
+                <span class="cache-info" id="cacheInfo"></span>
+            </div>
+            <div id="searchResults">
+                <div class="loading">Start typing to search for restaurants</div>
+            </div>
+            
+            <div class="click-hint">💡 Click on any restaurant card to view full details</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('searchForm');
+            const searchInput = document.getElementById('searchQuery');
+            const searchResults = document.getElementById('searchResults');
+            const resultsCount = document.getElementById('resultsCount');
+            
+            // Check if we have cached search results from previous session
+            const lastSearchQuery = sessionStorage.getItem('lastSearchQuery');
+            const lastSearchResults = sessionStorage.getItem('lastSearchResults');
+            
+            if (lastSearchQuery && lastSearchResults) {
+                try {
+                    const cachedData = JSON.parse(lastSearchResults);
+                    searchInput.value = lastSearchQuery;
+                    displayResults(cachedData.results, cachedData.count, true, true);
+                    console.log('🔄 Restored search results from browser session');
+                } catch (e) {
+                    console.error('Failed to restore cached results:', e);
+                    sessionStorage.removeItem('lastSearchQuery');
+                    sessionStorage.removeItem('lastSearchResults');
+                }
+            }
+            
+            // Handle form submission
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                performSearch();
+            });
+            
+            // Handle input changes for real-time search
+            searchInput.addEventListener('input', debounce(performSearch, 500));
+            
+            // Debounce function to limit API calls
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+            
+            // Perform search function
+            function performSearch() {
+                const query = searchInput.value.trim();
+                
+                // Show loading state
+                if (query) {
+                    searchResults.innerHTML = '<div class="loading">Searching restaurants...</div>';
+                } else {
+                    searchResults.innerHTML = '<div class="loading">Start typing to search for restaurants</div>';
+                }
+                resultsCount.textContent = '';
+                
+                if (!query) return;
+                
+                // Make AJAX request
+                fetch(`/search/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Log cache information
+                            if (data.cached) {
+                                console.log('🎯 Server Cache HIT: Results loaded from server cache');
+                            } else {
+                                console.log('💾 Server Cache MISS: Results fetched from database and cached');
+                            }
+                            
+                            // Cache results in browser session storage for navigation back
+                            const sessionCacheData = {
+                                results: data.results,
+                                count: data.count,
+                                timestamp: Date.now(),
+                                query: query
+                            };
+                            sessionStorage.setItem('lastSearchQuery', query);
+                            sessionStorage.setItem('lastSearchResults', JSON.stringify(sessionCacheData));
+                            console.log('💾 Browser session cache updated');
+                            
+                            displayResults(data.results, data.count, data.cached, false);
+                        } else {
+                            searchResults.innerHTML = '<div class="no-results"><h3>Error</h3><p>Something went wrong with the search</p></div>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        searchResults.innerHTML = '<div class="no-results"><h3>Error</h3><p>Failed to connect to the server</p></div>';
+                    });
+            }
+            
+            // Display search results
+            function displayResults(restaurants, count, cached = false, fromSession = false) {
+                if (count === 0) {
+                    searchResults.innerHTML = '<div class="no-results"><h3>No Results Found</h3><p>Try adjusting your search terms or check the spelling</p></div>';
+                    resultsCount.textContent = '0 restaurants found';
+                    return;
+                }
+                
+                let cacheIndicator = '';
+                if (cached && fromSession) {
+                    cacheIndicator = ' (from browser session)';
+                } else if (cached) {
+                    cacheIndicator = ' (from server cache)';
+                }
+                
+                resultsCount.textContent = `${count} restaurant${count !== 1 ? 's' : ''} found${cacheIndicator}`;
+                
+                // Show cache status if results are cached
+                const cacheStatus = document.getElementById('cacheStatus');
+                const cacheInfo = document.getElementById('cacheInfo');
+                if (cached) {
+                    if (fromSession) {
+                        cacheInfo.textContent = 'Results restored from browser session';
+                    } else {
+                        cacheInfo.textContent = 'Results loaded from server cache for instant display';
+                    }
+                    cacheStatus.style.display = 'flex';
+                } else {
+                    cacheStatus.style.display = 'none';
+                }
+                
+                const resultsHTML = restaurants.map(restaurant => `
+                    <div class="restaurant-card" onclick="window.location.href='/restaurant/${restaurant.id}/'">
+                        ${restaurant.reservation_partner !== 'None' ? 
+                            `<div class="reservation-badge">${restaurant.reservation_partner}</div>` : ''
+                        }
+                        
+                        <div class="restaurant-image">
+                            ${restaurant.main_image ? 
+                                `<img src="${restaurant.main_image}" alt="${restaurant.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">` :
+                                '🍽️'
+                            }
+                        </div>
+                        
+                        <div class="restaurant-header">
+                            <div>
+                                <div class="restaurant-name">${restaurant.name}</div>
+                                <div class="restaurant-cuisine">${restaurant.cuisine || 'Restaurant'}</div>
+                            </div>
+                            <div class="restaurant-rating">⭐ ${restaurant.rating}</div>
+                        </div>
+                        
+                        <div class="restaurant-details">
+                            <div class="restaurant-address">📍 ${restaurant.address}</div>
+                            ${restaurant.neighbourhood ? `<div class="restaurant-neighbourhood">🏘️ ${restaurant.neighbourhood}</div>` : ''}
+                            ${restaurant.price_range ? `<div class="restaurant-price">💰 ${restaurant.price_range}</div>` : ''}
+                            
+                            ${restaurant.vibes && restaurant.vibes.length > 0 ? `
+                                <div class="restaurant-vibes">
+                                    ${restaurant.vibes.map(vibe => `<span class="vibe-tag">${vibe}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="restaurant-contact">
+                            ${restaurant.website ? `<a href="${restaurant.website}" target="_blank" class="contact-link" onclick="event.stopPropagation()">🌐 Website</a>` : ''}
+                            ${restaurant.reservation_url ? `<a href="${restaurant.reservation_url}" target="_blank" class="contact-link" onclick="event.stopPropagation()">📅 Reserve</a>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+                
+                searchResults.innerHTML = `<div class="restaurant-grid">${resultsHTML}</div>`;
+            }
+            
+            // Focus search input on page load
+            searchInput.focus();
+            
+            // Handle browser back/forward navigation
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    // Page was loaded from back-forward cache
+                    console.log('🔄 Page restored from browser cache');
+                    restoreSearchResults();
+                }
+            });
+            
+            // Handle page visibility changes
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    // Page became visible again
+                    console.log('👁️ Page became visible, checking for cached results');
+                    restoreSearchResults();
+                }
+            });
+        });
+        
+        // Function to restore search results from session storage
+        function restoreSearchResults() {
+            const lastSearchQuery = sessionStorage.getItem('lastSearchQuery');
+            const lastSearchResults = sessionStorage.getItem('lastSearchResults');
+            
+            if (lastSearchQuery && lastSearchResults) {
+                try {
+                    const cachedData = JSON.parse(lastSearchResults);
+                    const searchInput = document.getElementById('searchQuery');
+                    const searchResults = document.getElementById('searchResults');
+                    const resultsCount = document.getElementById('resultsCount');
+                    
+                    // Only restore if we don't already have results displayed
+                    if (searchResults.innerHTML.includes('Start typing to search')) {
+                        searchInput.value = lastSearchQuery;
+                        displayResults(cachedData.results, cachedData.count, true, true);
+                        console.log('🔄 Restored search results from browser session');
+                    }
+                } catch (e) {
+                    console.error('Failed to restore cached results:', e);
+                    sessionStorage.removeItem('lastSearchQuery');
+                    sessionStorage.removeItem('lastSearchResults');
+                }
+            }
+        }
+        
+        // Cache management functions
+        function clearCache() {
+            fetch('/cache/clear/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`Server cache cleared successfully! ${data.message}`);
+                        // Hide cache status if visible
+                        document.getElementById('cacheStatus').style.display = 'none';
+                    } else {
+                        alert('Failed to clear server cache: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Server cache clear error:', error);
+                    alert('Failed to clear server cache');
+                });
+        }
+        
+        function clearBrowserCache() {
+            // Clear browser session storage
+            sessionStorage.removeItem('lastSearchQuery');
+            sessionStorage.removeItem('lastSearchResults');
+            
+            // Clear search input and results
+            document.getElementById('searchQuery').value = '';
+            document.getElementById('searchResults').innerHTML = '<div class="loading">Start typing to search for restaurants</div>';
+            document.getElementById('resultsCount').textContent = '';
+            document.getElementById('cacheStatus').style.display = 'none';
+            
+            alert('Browser session cache cleared! Search results have been reset.');
+            console.log('🗑️ Browser session cache cleared');
+        }
+        
+        function getCacheStats() {
+            // Get server cache stats
+            fetch('/cache/stats/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const info = data.cache_info;
+                        let statsMessage = `Server Cache Statistics:\nBackend: ${info.backend}\nTimeout: ${info.timeout}s\nMax Entries: ${info.max_entries}\nCurrent Entries: ${info.current_entries}`;
+                        
+                        // Get browser session cache stats
+                        const lastSearchQuery = sessionStorage.getItem('lastSearchQuery');
+                        const lastSearchResults = sessionStorage.getItem('lastSearchResults');
+                        
+                        if (lastSearchQuery && lastSearchResults) {
+                            try {
+                                const cachedData = JSON.parse(lastSearchResults);
+                                const cacheAge = Math.round((Date.now() - cachedData.timestamp) / 1000);
+                                statsMessage += `\n\nBrowser Session Cache:\nLast Query: "${lastSearchQuery}"\nResults Count: ${cachedData.count}\nCache Age: ${cacheAge}s ago`;
+                            } catch (e) {
+                                statsMessage += '\n\nBrowser Session Cache: Invalid data';
+                            }
+                        } else {
+                            statsMessage += '\n\nBrowser Session Cache: No cached results';
+                        }
+                        
+                        alert(statsMessage);
+                    } else {
+                        alert('Failed to get server cache stats: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Cache stats error:', error);
+                    alert('Failed to get cache statistics');
+                });
+        }
+    </script>
+</body>
+</html>

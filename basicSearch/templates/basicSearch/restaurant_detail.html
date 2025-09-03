@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ restaurant.name }} - Restaurant Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #495057;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .hero-section {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+        }
+        
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 40px 30px 30px;
+        }
+        
+        .restaurant-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .restaurant-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .hero-badges {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .hero-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+        
+        .content-section {
+            padding: 40px 30px;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+        
+        .main-content h2 {
+            color: #495057;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .info-card h3 {
+            color: #495057;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-card p {
+            color: #6c757d;
+            line-height: 1.5;
+        }
+        
+        .vibes-section {
+            margin-bottom: 30px;
+        }
+        
+        .vibes-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .vibe-tag {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .hours-section {
+            margin-bottom: 30px;
+        }
+        
+
+        
+        .hours-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .hours-table th,
+        .hours-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .hours-table th {
+            background: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .current-time-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border: 1px solid #28a745;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .time-label {
+            color: #155724;
+            font-weight: 600;
+        }
+        
+        .time-value {
+            color: #155724;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .hours-table td {
+            color: #6c757d;
+        }
+        
+        .today-row {
+            background: #e3f2fd;
+            color: #1976d2;
+            font-weight: 600;
+            border-left: 4px solid #2196f3;
+            position: relative;
+        }
+        
+        .today-row::after {
+            content: "Today";
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #2196f3;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .images-section {
+            margin-bottom: 30px;
+        }
+        
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .image-item {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .image-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .image-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .sidebar {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+            height: fit-content;
+        }
+        
+        .sidebar h3 {
+            color: #495057;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .contact-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: white;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-link:hover {
+            background: #74b9ff;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.3);
+        }
+        
+        .reservation-section {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .reservation-section h4 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .reservation-btn {
+            background: white;
+            color: #00b894;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .reservation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+        }
+        
+        .map-section {
+            margin-top: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .map-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-section {
+                height: 300px;
+            }
+            
+            .restaurant-title {
+                font-size: 2rem;
+            }
+            
+            .back-button {
+                top: 20px;
+                left: 20px;
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+            
+            .content-section {
+                padding: 30px 20px;
+            }
+        }
+            </style>
+    </head>
+    <body>
+    <a href="/" class="back-button">← Back to Search</a>
+    
+    <div class="container">
+        <div class="hero-section">
+            {% if restaurant.images %}
+                <img src="{{ restaurant.images.0 }}" alt="{{ restaurant.name }}" class="hero-image">
+            {% else %}
+                <div class="hero-image" style="background: linear-gradient(135deg, #74b9ff, #0984e3); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: white;">🍽️</div>
+            {% endif %}
+            
+            <div class="hero-overlay">
+                <h1 class="restaurant-title">{{ restaurant.name }}</h1>
+                <p class="restaurant-subtitle">
+                    {% if restaurant.cuisine %}{{ restaurant.cuisine }} • {% endif %}
+                    {% if restaurant.neighbourhood %}{{ restaurant.neighbourhood }}{% endif %}
+                </p>
+                <div class="hero-badges">
+                    {% if restaurant.rating %}
+                        <span class="hero-badge">⭐ {{ restaurant.rating }}</span>
+                    {% endif %}
+                    {% if restaurant.price_range %}
+                        <span class="hero-badge">💰 {{ restaurant.price_range }}</span>
+                    {% endif %}
+                    {% if restaurant.reservation_partner != 'None' %}
+                        <span class="hero-badge">📅 {{ restaurant.reservation_partner }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <div class="content-grid">
+                <div class="main-content">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h3>📍 Address</h3>
+                            <p>{{ restaurant.address }}</p>
+                        </div>
+                        
+                        {% if restaurant.phone %}
+                        <div class="info-card">
+                            <h3>📞 Phone</h3>
+                            <p><a href="tel:{{ restaurant.phone }}" style="color: #74b9ff; text-decoration: none;">{{ restaurant.phone }}</a></p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if restaurant.place_id %}
+                        <div class="info-card">
+                            <h3>🆔 Place ID</h3>
+                            <p>{{ restaurant.place_id }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if restaurant.latitude and restaurant.longitude %}
+                        <div class="info-card">
+                            <h3>🗺️ Coordinates</h3>
+                            <p>{{ restaurant.latitude }}, {{ restaurant.longitude }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if restaurant.vibes %}
+                    <div class="vibes-section">
+                        <h2>Vibes & Atmosphere</h2>
+                        <div class="vibes-grid">
+                            {% for vibe in restaurant.get_vibes_display %}
+                                <span class="vibe-tag">{{ vibe|lower }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if restaurant.operating_hours %}
+                    <div class="hours-section">
+                        <h2>Operating Hours</h2>
+                        <div class="current-time-display" id="currentTime">
+                            <span class="time-label">🕐 Current Time:</span>
+                            <span class="time-value" id="timeValue"></span>
+                        </div>
+                        
+                        <table class="hours-table">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Hours</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for day, hours in restaurant.operating_hours.items %}
+                                    <tr class="hours-row" data-day="{{ day }}">
+                                        <td>{{ day|title }}</td>
+                                        <td>{{ hours }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                    
+                    {% if restaurant.images %}
+                    <div class="images-section">
+                        <h2>Gallery</h2>
+                        <div class="images-grid">
+                            {% for image in restaurant.images %}
+                                <div class="image-item">
+                                    <img src="{{ image }}" alt="{{ restaurant.name }}">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if restaurant.latitude and restaurant.longitude %}
+                    <div class="map-section">
+                        <h2>Location</h2>
+                        <div class="map-placeholder">
+                            📍 Map showing {{ restaurant.latitude }}, {{ restaurant.longitude }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="sidebar">
+                    {% if restaurant.reservation_url %}
+                    <div class="reservation-section">
+                        <h4>Make a Reservation</h4>
+                        <a href="{{ restaurant.reservation_url }}" target="_blank" class="reservation-btn">
+                            Book Now
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <h3>Quick Links</h3>
+                    <div class="contact-links">
+                        {% if restaurant.website %}
+                            <a href="{{ restaurant.website }}" target="_blank" class="contact-link">
+                                🌐 Website
+                            </a>
+                        {% endif %}
+                        
+                        {% if restaurant.menu_url %}
+                            <a href="{{ restaurant.menu_url }}" target="_blank" class="contact-link">
+                                📋 Menu
+                            </a>
+                        {% endif %}
+                        
+                        {% if restaurant.instagram_url %}
+                            <a href="{{ restaurant.instagram_url }}" target="_blank" class="contact-link">
+                                📸 Instagram
+                            </a>
+                        {% endif %}
+                        
+                        {% if restaurant.facebook_url %}
+                            <a href="{{ restaurant.facebook_url }}" target="_blank" class="contact-link">
+                                👥 Facebook
+                            </a>
+                        {% endif %}
+                        
+                        {% if restaurant.x_url %}
+                            <a href="{{ restaurant.x_url }}" target="_blank" class="contact-link">
+                                🐦 Twitter/X
+                            </a>
+                        {% endif %}
+                        
+                        {% if restaurant.tiktok_url %}
+                            <a href="{{ restaurant.tiktok_url }}" target="_blank" class="contact-link">
+                                🎵 TikTok
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="info-card">
+                        <h3>📊 Details</h3>
+                        <p><strong>ID:</strong> {{ restaurant.id }}</p>
+                        <p><strong>Created:</strong> {{ restaurant.created_at|date:"M d, Y" }}</p>
+                        {% if restaurant.updated_at %}
+                            <p><strong>Updated:</strong> {{ restaurant.updated_at|date:"M d, Y" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Function to highlight the current day in operating hours
+        function highlightCurrentDay() {
+            const today = new Date();
+            const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            
+            // Map JavaScript day numbers to day names
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const currentDayName = dayNames[currentDay];
+            
+            // Remove any existing highlights
+            document.querySelectorAll('.hours-row').forEach(row => {
+                row.classList.remove('today-row');
+            });
+            
+            // Highlight the current day
+            const currentDayRow = document.querySelector(`[data-day="${currentDayName}"]`);
+            if (currentDayRow) {
+                currentDayRow.classList.add('today-row');
+                console.log(`🎯 Highlighted current day: ${currentDayName}`);
+            }
+        }
+        
+        // Function to update current time display
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour12: true,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            const timeElement = document.getElementById('timeValue');
+            if (timeElement) {
+                timeElement.textContent = timeString;
+            }
+        }
+        
+        // Highlight current day when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            highlightCurrentDay();
+            updateCurrentTime();
+        });
+        
+        // Update highlight and time every second
+        setInterval(function() {
+            highlightCurrentDay();
+            updateCurrentTime();
+        }, 1000);
+    </script>
+</body>
+</html>
